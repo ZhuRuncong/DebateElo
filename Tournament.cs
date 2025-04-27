@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BPTrueskill
+namespace DebateElo
 {
     public class Tournament
     {
