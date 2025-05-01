@@ -22,12 +22,19 @@ namespace DebateElo.Models
 
         public void ScrapeMotions(ITournamentScraper scraper)
         {
-            var motionData = scraper.FetchMotions(Url);
-            for (int i = 0; i < motionData.Count; i++)
+            try
             {
-                var (title, lead) = motionData[i];
-                var motion = new Motion(title, lead, i + 1, Name);
-                Motions.Add(motion);
+                var motionTexts = scraper.FetchMotions(Url);
+                for (int i = 0; i < motionTexts.Count; i++)
+                {
+                    var (title, lead) = motionTexts[i];
+                    var motion = new Motion(title, lead, i + 1, Name);
+                    Motions.Add(motion);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to fetch motions for '{Name}': {ex.Message}");
             }
         }
     }

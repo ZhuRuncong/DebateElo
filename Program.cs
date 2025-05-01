@@ -1,6 +1,7 @@
 ﻿using System;
-using DebateElo.Models;
 using DebateElo.Scrapers;
+using DebateElo.Services;
+
 
 namespace DebateElo
 {
@@ -8,22 +9,15 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            ITournamentScraper scraper = new TournamentScraper();
+            var scraper = new TournamentScraper();
+            var batchScraper = new MotionBatchScraper(scraper);
 
-            var tournament = new Tournament(
-                name: "MyTournament",
-                url: "https://abp2020.calicotab.com/abp2020/",
-                date: DateTime.Now
-            );
+            string inputCsv = "./Data/tournament_data.csv";
+            string outputCsv = "./Data/motion_output.csv";
 
-            tournament.ScrapeMotions(scraper);
+            batchScraper.ScrapeAllMotionsToCsv(inputCsv, outputCsv);
 
-            foreach (var motion in tournament.Motions)
-            {
-                Console.WriteLine($"{motion.Lead}");
-            }
-
-            Console.WriteLine("Scraping complete.");
+            Console.WriteLine("Motion scraping complete. Output saved to: " + outputCsv);
         }
     }
 }

@@ -12,14 +12,22 @@ namespace DebateElo.Scrapers
         {
             var fullUrl = url.TrimEnd('/') + "/motions/";
 
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
-            var pageContents = client.GetStringAsync(fullUrl).Result;
+            var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
+            request.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/90.0.4430.93 Safari/537.36");
+            request.Headers.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            request.Headers.AcceptLanguage.ParseAdd("en-US,en;q=0.9");
+            request.Headers.Connection.ParseAdd("keep-alive");
+
+            var response = client.SendAsync(request).Result;
+            response.EnsureSuccessStatusCode(); // will throw if still blocked
+
+            var pageContents = response.Content.ReadAsStringAsync().Result;
+
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(pageContents);
-
             var motions = new List<(string, string)>();
-            var cards = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'card mt-3')]");
 
+            var cards = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'card mt-3')]");
             if (cards != null)
             {
                 foreach (var card in cards)
@@ -34,5 +42,6 @@ namespace DebateElo.Scrapers
 
             return motions;
         }
+
     }
 }
