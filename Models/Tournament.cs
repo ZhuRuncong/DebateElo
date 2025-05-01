@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using DebateElo.Scrapers;
 
-namespace DebateElo
+namespace DebateElo.Models
 {
     public class Tournament
     {
@@ -21,11 +22,11 @@ namespace DebateElo
 
         public void ScrapeMotions(ITournamentScraper scraper)
         {
-            var motionTexts = scraper.FetchMotions(Url);
-            for (int i = 0; i < motionTexts.Count; i++)
+            var motionData = scraper.FetchMotions(Url);
+            for (int i = 0; i < motionData.Count; i++)
             {
-                var motion = new Motion(motionTexts[i], i + 1, Name);
-
+                var (title, lead) = motionData[i];
+                var motion = new Motion(title, lead, i + 1, Name);
                 Motions.Add(motion);
             }
         }

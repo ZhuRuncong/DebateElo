@@ -1,4 +1,6 @@
 ﻿using System;
+using DebateElo.Models;
+using DebateElo.Scrapers;
 
 namespace DebateElo
 {
@@ -6,19 +8,22 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            bool runScraper = true;
+            ITournamentScraper scraper = new TournamentScraper();
 
-            if (runScraper)
+            var tournament = new Tournament(
+                name: "MyTournament",
+                url: "https://abp2020.calicotab.com/abp2020/",
+                date: DateTime.Now
+            );
+
+            tournament.ScrapeMotions(scraper);
+
+            foreach (var motion in tournament.Motions)
             {
-                var scraper = new TournamentScraper();
-                var motions = scraper.FetchMotions("https://wudc2020.calicotab.com/wudc2020/motions/");
-
-                foreach (var motion in motions)
-                {
-                    Console.WriteLine(motion);
-                    Console.WriteLine();
-                }
+                Console.WriteLine($"{motion.Lead}");
             }
+
+            Console.WriteLine("Scraping complete.");
         }
     }
 }
