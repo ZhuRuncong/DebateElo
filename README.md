@@ -1,8 +1,7 @@
 # TO-DO
-- New service for batch creating and storing speakers
-- Iterate across all tournaments, get all speakers (clean)
-  - Initialise gaussians for all speakers, for normal skill and cluster skills
-- New service for batch creating and storing round
+- Get all rounds in a tournament
+- Pull participants - team mapping
+  - Perform mapping on rounds in tournament
 - Define algorithm
-- Run on round
+- Run on round all rounds
 - Tuning

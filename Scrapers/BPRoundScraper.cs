@@ -69,27 +69,24 @@ namespace DebateElo.Scrapers
                 {
                     Adjudicator = string.Join(", ", adjNames),
 
-                    OG = new TeamStanding
-                    {
-                        Name = r[colMap["OG"]]?["text"]?.ToString() ?? "",
-                        Rank = r[colMap["OG"]]?["sort"]?.ToObject<int?>() ?? -1
-                    },
-                    OO = new TeamStanding
-                    {
-                        Name = r[colMap["OO"]]?["text"]?.ToString() ?? "",
-                        Rank = r[colMap["OO"]]?["sort"]?.ToObject<int?>() ?? -1
-                    },
-                    CG = new TeamStanding
-                    {
-                        Name = r[colMap["CG"]]?["text"]?.ToString() ?? "",
-                        Rank = r[colMap["CG"]]?["sort"]?.ToObject<int?>() ?? -1
-                    },
-                    CO = new TeamStanding
-                    {
-                        Name = r[colMap["CO"]]?["text"]?.ToString() ?? "",
-                        Rank = r[colMap["CO"]]?["sort"]?.ToObject<int?>() ?? -1
-                    }
+                    OG = new TeamStanding(
+                        r[colMap["OG"]]?["text"]?.ToString() ?? "",
+                        r[colMap["OG"]]?["sort"]?.ToObject<int?>() ?? -1
+                    ),
+                    OO = new TeamStanding(
+                        r[colMap["OO"]]?["text"]?.ToString() ?? "",
+                        r[colMap["OO"]]?["sort"]?.ToObject<int?>() ?? -1
+                    ),
+                    CG = new TeamStanding(
+                        r[colMap["CG"]]?["text"]?.ToString() ?? "",
+                        r[colMap["CG"]]?["sort"]?.ToObject<int?>() ?? -1
+                    ),
+                    CO = new TeamStanding(
+                        r[colMap["CO"]]?["text"]?.ToString() ?? "",
+                        r[colMap["CO"]]?["sort"]?.ToObject<int?>() ?? -1
+                    )
                 });
+
             }
 
             return results;
