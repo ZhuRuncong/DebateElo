@@ -19,7 +19,7 @@ namespace DebateElo.Scrapers
             request.Headers.Connection.ParseAdd("keep-alive");
 
             var response = client.SendAsync(request).Result;
-            response.EnsureSuccessStatusCode(); // will throw if still blocked
+            response.EnsureSuccessStatusCode();
 
             var pageContents = response.Content.ReadAsStringAsync().Result;
 

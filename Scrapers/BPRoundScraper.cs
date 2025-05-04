@@ -9,7 +9,7 @@ using DebateElo.Models;
 
 namespace DebateElo.Scrapers
 {
-    public class RoundScraper
+    public class BPRoundScraper : IRoundScraper
     {
         private static readonly HttpClient client = new HttpClient();
 

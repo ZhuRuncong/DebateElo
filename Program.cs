@@ -9,8 +9,8 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            var scraper = new RoundScraper();
-
+            IRoundScraper scraper = new BPRoundScraper();
+            
             string url = "https://hhhs2025.calicotab.com/hhhs2025/results/round/1/?view=debate";
 
             try
