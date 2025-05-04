@@ -36,7 +36,7 @@ namespace DebateElo.Services
             var tournaments = new List<Tournament>();
             using (var reader = new StreamReader(csvPath))
             {
-                _ = reader.ReadLine(); // skip header safely
+                _ = reader.ReadLine();
 
                 while (!reader.EndOfStream)
                 {
@@ -61,7 +61,7 @@ namespace DebateElo.Services
         {
             using (var writer = new StreamWriter(csvPath))
             {
-                writer.WriteLine("Tournament,Date,Round,Title,Lead");
+                writer.WriteLine("Tournament,Round,Title,Lead");
 
                 foreach (var motion in motions)
                 {
