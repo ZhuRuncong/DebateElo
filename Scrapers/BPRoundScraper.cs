@@ -20,6 +20,12 @@ namespace DebateElo.Scrapers
             var head = table["head"] as JArray;
             var data = table["data"] as JArray;
 
+            if (head == null)
+                throw new Exception("Round table is missing headers.");
+
+            if (data == null)
+                throw new Exception("Round table is missing data.");
+            
             var colMap = new Dictionary<string, int>();
             for (int i = 0; i < head.Count; i++)
             {

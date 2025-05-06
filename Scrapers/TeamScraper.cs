@@ -22,6 +22,12 @@ namespace DebateElo.Scrapers
             var teamTable = tables[1];
             var headers = teamTable["head"] as JArray;
             var rows = teamTable["data"] as JArray;
+            
+            if (headers == null)
+                throw new Exception("Team table is missing headers.");
+
+            if (rows == null)
+                throw new Exception("Team table is missing data.");
 
             int teamCol = -1;
             for (int i = 0; i < headers.Count; i++)

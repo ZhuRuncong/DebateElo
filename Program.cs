@@ -1,7 +1,7 @@
 ﻿using System;
-using DebateElo.Scrapers;
-using DebateElo.Models;
 using System.Collections.Generic;
+using DebateElo.Models;
+using DebateElo.Scrapers;
 
 namespace DebateElo
 {
@@ -9,29 +9,27 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            IRoundScraper scraper = new BPRoundScraper();
-            
-            string url = "https://hhhs2025.calicotab.com/hhhs2025/results/round/1/?view=debate";
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            var teamScraper = new TeamScraper();
+
+            string url = "https://westernwsdc.calicotab.com/westernwsdc2024/participants/list/";
+            string tournamentName = "Western WSDC 2024";
 
             try
             {
-                List<RoundResult> results = scraper.ScrapeRound(url);
+                List<Team> teams = teamScraper.ScrapeTeams(url, tournamentName);
 
-                foreach (var result in results)
+                foreach (var team in teams)
                 {
-                    Console.WriteLine($"Adjudicators: {result.Adjudicator}");
-
-                    Console.WriteLine($"OG: {result.OG.Name} (Rank {result.OG.Rank})");
-                    Console.WriteLine($"OO: {result.OO.Name} (Rank {result.OO.Rank})");
-                    Console.WriteLine($"CG: {result.CG.Name} (Rank {result.CG.Rank})");
-                    Console.WriteLine($"CO: {result.CO.Name} (Rank {result.CO.Rank})");
-
-                    Console.WriteLine(new string('-', 50));
+                    Console.WriteLine($"{team.TeamName} ({team.Tournament})");
+                    Console.WriteLine("Speakers: " + string.Join(", ", team.Speakers));
+                    Console.WriteLine(new string('-', 40));
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error scraping round: " + ex.Message);
+                Console.WriteLine("Error scraping teams: " + ex.Message);
             }
         }
     }
