@@ -13,7 +13,7 @@ namespace DebateElo
 
             var teamScraper = new TeamScraper();
 
-            string url = "https://westernwsdc.calicotab.com/westernwsdc2024/participants/list/";
+            string url = "https://westernwsdc.calicotab.com/westernwsdc2024/";
             string tournamentName = "Western WSDC 2024";
 
             try

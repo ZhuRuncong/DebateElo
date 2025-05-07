@@ -13,16 +13,18 @@ namespace DebateElo.Scrapers
 
         public List<Team> ScrapeTeams(string url, string tournamentName)
         {
+            var fullUrl = url.TrimEnd('/') + "/participants/list/";
+
             var teams = new List<Team>();
             var seen = new HashSet<string>();
 
-            JObject vueData = vueScraper.ExtractVueData(url);
+            JObject vueData = vueScraper.ExtractVueData(fullUrl);
             JArray tables = vueScraper.GetVueTables(vueData);
 
             var teamTable = tables[1];
             var headers = teamTable["head"] as JArray;
             var rows = teamTable["data"] as JArray;
-            
+
             if (headers == null)
                 throw new Exception("Team table is missing headers.");
 
@@ -39,13 +41,20 @@ namespace DebateElo.Scrapers
                 }
             }
 
+            if (teamCol < 0)
+                throw new Exception("Could not find 'team' column in headers.");
+
             foreach (var row in rows)
             {
-                var r = (JArray)row;
-                var cell = r[teamCol];
+                var r = row as JArray;
+                if (r == null || teamCol >= r.Count)
+                    continue;
 
-                var popover = cell["popover"];
-                var teamName = (string?)popover?["title"] ?? (string?)cell["text"] ?? "Unknown";
+                var cell = r[teamCol];
+                var popover = cell?["popover"];
+                var teamName = (string?)popover?["title"]?.ToString().Trim() 
+                               ?? (string?)cell?["text"]?.ToString().Trim()
+                               ?? "Unknown";
 
                 if (!seen.Add(teamName))
                     continue;
@@ -57,7 +66,7 @@ namespace DebateElo.Scrapers
                     foreach (var entry in content)
                     {
                         var text = (string?)entry?["text"];
-                        if (text != null && text.Contains(','))
+                        if (!string.IsNullOrEmpty(text) && text.Contains(','))
                         {
                             speakers.AddRange(text.Split(',', StringSplitOptions.TrimEntries));
                             break;
