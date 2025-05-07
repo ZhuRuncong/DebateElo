@@ -1,5 +1,7 @@
-﻿using DebateElo.Scrapers;
-using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Text;
+using DebateElo.Services;
+using DebateElo.Scrapers;
 
 namespace DebateElo
 {
@@ -7,11 +9,19 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var vueScraper = new VueDataScraper();
-            string url = "https://hhhs2025.calicotab.com/hhhs2025/tab/team/";
-            JObject vueData = vueScraper.ExtractVueData(url);
-            Console.WriteLine(vueData.ToString());
+            Console.OutputEncoding = Encoding.UTF8;
+            string inputCsv  = "Data/tournament_data.csv";
+            string outputCsv = "Data/team_output.csv";
+            var batchScraper = new TeamBatchScraper(new TeamScraper());
+            try
+            {
+                batchScraper.ScrapeAllTeamsToCsv(inputCsv, outputCsv);
+                Console.WriteLine($"Successfully scraped all teams to '{outputCsv}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during scraping: {ex.Message}");
+            }
         }
     }
 }
