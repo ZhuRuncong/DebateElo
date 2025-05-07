@@ -10,11 +10,11 @@ namespace DebateElo.Scrapers
      {
         private readonly VueDataScraper vueScraper = new();
 
-        public List<RoundResult> ScrapeRound(string baseUrl, int roundNumber)
+        public List<RoundResult> ScrapeRound(string url, int roundNumber)
         {
-            var url = baseUrl.TrimEnd('/') + "/results/round/" + roundNumber + "/?view=debate";
+            var fullUrl = url.TrimEnd('/') + "/results/round/" + roundNumber + "/?view=debate";
             var results = new List<RoundResult>();
-            JObject vueData = vueScraper.ExtractVueData(url);
+            JObject vueData = vueScraper.ExtractVueData(fullUrl);
             JArray tables  = vueScraper.GetVueTables(vueData);
 
             var table = tables[0];

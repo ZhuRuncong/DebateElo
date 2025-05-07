@@ -5,6 +5,6 @@ namespace DebateElo.Scrapers
 {
     public interface IRoundScraper
     {
-        List<RoundResult> ScrapeRound(string url);
+        List<RoundResult> ScrapeRound(string baseUrl, int roundNumber);
     }
 }
