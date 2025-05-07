@@ -35,7 +35,7 @@ namespace DebateElo.Scrapers
             {
                 if (!(row is JArray r)) continue;
 
-                string adjHtml = r[colMap["Adjudicators"]]?["text"]?.ToString() ?? "";
+                string adjHtml = r[colMap["adjudicators"]]?["text"]?.ToString() ?? "";
                 var adjDoc = new HtmlDocument();
                 adjDoc.LoadHtml(adjHtml);
                 var adjSpans = adjDoc.DocumentNode.SelectNodes("//span[@class='d-inline']");

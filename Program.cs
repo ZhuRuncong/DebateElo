@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Text;
-using DebateElo.Services;
 using DebateElo.Scrapers;
+using DebateElo.Services;
 
 namespace DebateElo
 {
@@ -9,18 +8,19 @@ namespace DebateElo
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.UTF8;
-            string inputCsv  = "Data/tournament_data.csv";
-            string outputCsv = "Data/team_output.csv";
-            var batchScraper = new TeamBatchScraper(new TeamScraper());
-            try
+            var roundScraper = new BPRoundScraper();
+            var batchScraper = new RoundBatchScraper(roundScraper);
+
+            string tournamentUrl = "https://westernwinter2024.calicotab.com/westernwinter2024/";
+
+            var tournamentRounds = batchScraper.ScrapeTournamentRounds(tournamentUrl);
+
+            Console.WriteLine($"Total rounds scraped: {tournamentRounds.Count}");
+            int roundIndex = 1;
+            foreach (var round in tournamentRounds)
             {
-                batchScraper.ScrapeAllTeamsToCsv(inputCsv, outputCsv);
-                Console.WriteLine($"Successfully scraped all teams to '{outputCsv}'.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during scraping: {ex.Message}");
+                Console.WriteLine($"Round {roundIndex}: {round.Count} results");
+                roundIndex++;
             }
         }
     }
