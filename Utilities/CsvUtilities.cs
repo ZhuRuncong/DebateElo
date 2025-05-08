@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using DebateElo.Models;
 
-namespace DebateElo.Services
+namespace DebateElo.Utilities
 {
     public static class CsvUtilities
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DebateElo.Models;
 using DebateElo.Scrapers;
-using DebateElo.Services;
+using DebateElo.Utilities;
 
 namespace DebateElo.Services
 {
