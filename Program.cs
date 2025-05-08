@@ -1,13 +1,26 @@
 ﻿using System;
-using DebateElo.Utilities;
+using DebateElo.Scrapers;
+using DebateElo.Services;
 
 class Program
 {
     static void Main()
     {
-        SpeakerExtractor.ExtractUniqueSpeakersToCsv(
-            "data/team_output.csv",
-            "data/unique_speakers.csv"
-        );
+        var scraper = new MotionScraper();
+        var batch = new MotionBatchScraper(scraper);
+
+        string inputCsv = "Data/tournament_data.csv";
+        string outputCsv = "Data/motion_output.csv";
+
+        try
+        {
+            batch.ScrapeAllMotionsToCsv(inputCsv, outputCsv);
+            Console.WriteLine($"Done. Motions saved to {outputCsv}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Scraping failed:");
+            Console.WriteLine(ex.Message);
+        }
     }
 }

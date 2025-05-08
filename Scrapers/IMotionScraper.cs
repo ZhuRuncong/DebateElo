@@ -2,7 +2,7 @@
 
 namespace DebateElo.Scrapers
 {
-    public interface ITournamentScraper
+    public interface IMotionScraper
     {
         List<(string title, string lead)> FetchMotions(string url);
     }

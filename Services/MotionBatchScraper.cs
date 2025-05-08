@@ -8,9 +8,9 @@ namespace DebateElo.Services
 {
     public class MotionBatchScraper
     {
-        private readonly ITournamentScraper _scraper;
+        private readonly IMotionScraper _scraper;
 
-        public MotionBatchScraper(ITournamentScraper scraper)
+        public MotionBatchScraper(IMotionScraper scraper)
             => _scraper = scraper;
 
         public void ScrapeAllMotionsToCsv(string inCsv, string outCsv)

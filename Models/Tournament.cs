@@ -20,7 +20,7 @@ namespace DebateElo.Models
             Motions = new List<Motion>();
         }
 
-        public void ScrapeMotions(ITournamentScraper scraper)
+        public void ScrapeMotions(IMotionScraper scraper)
         {
             try
             {
