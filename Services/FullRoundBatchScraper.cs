@@ -101,8 +101,6 @@ namespace DebateElo.Services
             {
                 standing.Speaker1 = speakers.ElementAtOrDefault(0) ?? "";
                 standing.Speaker2 = speakers.ElementAtOrDefault(1) ?? "";
-
-                Console.WriteLine($"Matched '{standing.TeamName}' to speakers '{standing.Speaker1}', '{standing.Speaker2}'");
             }
             else
             {
