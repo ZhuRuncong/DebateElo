@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using DebateElo.Models;
@@ -7,19 +8,33 @@ using DebateElo.Models;
 namespace DebateElo.Scrapers
 {
     public class BPRoundScraper : IRoundScraper
-     {
+    {
         private readonly VueDataScraper vueScraper = new();
 
         public List<RoundResult> ScrapeRound(string url, int roundNumber)
         {
             var fullUrl = url.TrimEnd('/') + "/results/round/" + roundNumber + "/?view=debate";
             var results = new List<RoundResult>();
+
+            var httpClient = new HttpClient();
+            var rawHtml = httpClient.GetStringAsync(fullUrl).Result;
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(rawHtml);
+
+            string roundTitle = "Unknown Round";
+            var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//div[@id='pageTitle']//small[contains(@class, 'text-muted')]");
+            if (titleNode != null)
+            {
+                roundTitle = titleNode.InnerText.Trim().Replace("for ", "");
+            }
+
             JObject vueData = vueScraper.ExtractVueData(fullUrl);
-            JArray tables  = vueScraper.GetVueTables(vueData);
+            JArray tables = vueScraper.GetVueTables(vueData);
 
             var table = tables[0];
-            var head  = table["head"] as JArray;
-            var data  = table["data"] as JArray;
+            var head = table["head"] as JArray;
+            var data = table["data"] as JArray;
 
             if (head == null) throw new Exception("Round table is missing headers.");
             if (data == null) throw new Exception("Round table is missing data.");
@@ -52,6 +67,7 @@ namespace DebateElo.Scrapers
 
                 results.Add(new RoundResult
                 {
+                    RoundTitle = roundTitle,
                     Adjudicator = string.Join(", ", adjNames),
                     OG = new TeamStanding(
                         r[colMap["OG"]]?["text"]?.ToString() ?? "",

@@ -5,11 +5,11 @@ using DebateElo.Scrapers;
 
 namespace DebateElo.Services
 {
-    public class RoundBatchScraper
+    public class TournamentRoundBatchScraper
     {
         private readonly IRoundScraper _roundScraper;
 
-        public RoundBatchScraper(IRoundScraper roundScraper)
+        public TournamentRoundBatchScraper(IRoundScraper roundScraper)
         {
             _roundScraper = roundScraper;
         }

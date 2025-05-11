@@ -47,9 +47,10 @@ namespace DebateElo.Scrapers
 
                 var cell    = r[teamCol];
                 var popover = cell?["popover"];
-                var name    = (string?)popover?["title"]?.ToString().Trim()
-                           ?? (string?)cell?["text"]?.ToString().Trim()
-                           ?? "Unknown";
+                var name = (string?)cell?["text"]?.ToString().Trim()
+                        ?? (string?)popover?["title"]?.ToString().Trim()
+                        ?? "Unknown";
+
                 if (!seen.Add(name)) continue;
 
                 var speakers = new List<string>();

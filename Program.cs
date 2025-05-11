@@ -2,25 +2,39 @@
 using DebateElo.Scrapers;
 using DebateElo.Services;
 
-class Program
+namespace DebateElo
 {
-    static void Main()
+    class Program
     {
-        var scraper = new MotionScraper();
-        var batch = new MotionBatchScraper(scraper);
-
-        string inputCsv = "Data/tournament_data.csv";
-        string outputCsv = "Data/motion_output.csv";
-
-        try
+        static void Main()
         {
-            batch.ScrapeAllMotionsToCsv(inputCsv, outputCsv);
-            Console.WriteLine($"Done. Motions saved to {outputCsv}");
+            var fullScraper = new FullRoundBatchScraper(
+                new TournamentRoundBatchScraper(new BPRoundScraper()),
+                new TeamScraper()
+            );
+
+            var rankingInstances = fullScraper.ScrapeAll(
+                "./Data/tournament_data.csv",
+                "./Data/motion_clustered.csv"
+            );
+
+            Console.WriteLine($"Scraped {rankingInstances.Count} Ranking Instances.");
+
+            foreach (var instance in rankingInstances)
+            {
+                Console.WriteLine($"Date: {instance.Date:yyyy-MM-dd}, Cluster: {instance.MotionCluster}");
+                PrintRank("Rank 1", instance.Rank1Teams);
+                PrintRank("Rank 2", instance.Rank2Teams);
+                PrintRank("Rank 3", instance.Rank3Teams);
+                PrintRank("Rank 4", instance.Rank4Teams);
+                Console.WriteLine("--------------------------------");
+            }
         }
-        catch (Exception ex)
+
+        static void PrintRank(string rankName, List<List<string>> teams)
         {
-            Console.WriteLine("Scraping failed:");
-            Console.WriteLine(ex.Message);
+            foreach (var team in teams)
+                Console.WriteLine($"  {rankName}: {string.Join(", ", team)}");
         }
     }
 }
