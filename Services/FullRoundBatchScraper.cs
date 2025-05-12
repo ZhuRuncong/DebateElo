@@ -22,11 +22,12 @@ namespace DebateElo.Services
             _teamScraper = teamScraper;
         }
 
-        public List<RankingInstance> ScrapeAll(string tournamentDataCsv, string motionClusterCsv)
+        public List<RankingInstance> ScrapeAll(string tournamentDataCsv, string motionClusterCsv, string teamCsv, string outCsv)
         {
             LoadMotionClusters(motionClusterCsv);
             LoadTournamentMetadata(tournamentDataCsv);
 
+            var teamMap = CsvUtilities.LoadTeamSpeakerMap(teamCsv);
             var allRankingInstances = new List<RankingInstance>();
 
             foreach (var url in _tournamentMeta.Keys)
@@ -34,22 +35,7 @@ namespace DebateElo.Services
                 var (date, tournamentName) = _tournamentMeta[url];
                 Console.WriteLine($"Scraping tournament: {tournamentName} ({date:yyyy-MM-dd})");
 
-                Dictionary<string, List<string>> teams;
                 List<List<RoundResult>> rounds;
-
-                try
-                {
-                    teams = _teamScraper.ScrapeTeams(url, tournamentName)
-                        .ToDictionary(
-                            team => team.TeamName,
-                            team => team.Speakers.Select(NameNormalizer.Normalize).ToList()
-                        );
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Failed to scrape teams for {tournamentName}: {e.Message}");
-                    continue;
-                }
 
                 try
                 {
@@ -75,10 +61,10 @@ namespace DebateElo.Services
                             Rank4Teams = new()
                         };
 
-                        AssignSpeakers(result.OG, teams);
-                        AssignSpeakers(result.OO, teams);
-                        AssignSpeakers(result.CG, teams);
-                        AssignSpeakers(result.CO, teams);
+                        AssignSpeakers(result.OG, tournamentName, teamMap);
+                        AssignSpeakers(result.OO, tournamentName, teamMap);
+                        AssignSpeakers(result.CG, tournamentName, teamMap);
+                        AssignSpeakers(result.CO, tournamentName, teamMap);
 
                         AddTeamByRank(instance, result.OG);
                         AddTeamByRank(instance, result.OO);
@@ -90,21 +76,22 @@ namespace DebateElo.Services
                 }
             }
 
-            SaveRankingInstances(allRankingInstances, "ranking_output.csv");
+            SaveRankingInstances(allRankingInstances, outCsv);
             return allRankingInstances;
         }
 
 
-        private void AssignSpeakers(TeamStanding standing, Dictionary<string, List<string>> teamMap)
+        private void AssignSpeakers(TeamStanding standing, string tournamentName, Dictionary<(string, string), List<string>> teamMap)
         {
-            if (standing.TeamName != null && teamMap.TryGetValue(standing.TeamName, out var speakers))
+            var key = (tournamentName, standing.TeamName ?? "");
+            if (teamMap.TryGetValue(key, out var speakers))
             {
                 standing.Speaker1 = speakers.ElementAtOrDefault(0) ?? "";
                 standing.Speaker2 = speakers.ElementAtOrDefault(1) ?? "";
             }
             else
             {
-                Console.WriteLine($"Team '{standing.TeamName}' not found in teamMap");
+                Console.WriteLine($"Team '{standing.TeamName}' not found in teamMap for tournament '{tournamentName}'");
             }
         }
 

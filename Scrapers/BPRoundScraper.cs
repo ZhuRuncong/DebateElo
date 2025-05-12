@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using DebateElo.Models;
+using DebateElo.Utilities;
 
 namespace DebateElo.Scrapers
 {
@@ -16,8 +16,7 @@ namespace DebateElo.Scrapers
             var fullUrl = url.TrimEnd('/') + "/results/round/" + roundNumber + "/?view=debate";
             var results = new List<RoundResult>();
 
-            var httpClient = new HttpClient();
-            var rawHtml = httpClient.GetStringAsync(fullUrl).Result;
+            var rawHtml = HtmlFetcher.FetchSync(fullUrl);
 
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(rawHtml);
@@ -25,9 +24,8 @@ namespace DebateElo.Scrapers
             string roundTitle = "Unknown Round";
             var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//div[@id='pageTitle']//small[contains(@class, 'text-muted')]");
             if (titleNode != null)
-            {
+
                 roundTitle = titleNode.InnerText.Trim().Replace("for ", "");
-            }
 
             JObject vueData = vueScraper.ExtractVueData(fullUrl);
             JArray tables = vueScraper.GetVueTables(vueData);
@@ -48,47 +46,50 @@ namespace DebateElo.Scrapers
 
             foreach (var row in data)
             {
-                if (!(row is JArray r)) continue;
+                if (row is not JArray r) continue;
 
-                string adjHtml = r[colMap["adjudicators"]]?["text"]?.ToString() ?? "";
-                var adjDoc = new HtmlDocument();
-                adjDoc.LoadHtml(adjHtml);
-                var adjSpans = adjDoc.DocumentNode.SelectNodes("//span[@class='d-inline']");
-                var adjNames = new List<string>();
-                if (adjSpans != null)
-                {
-                    foreach (var span in adjSpans)
-                    {
-                        var name = HtmlEntity.DeEntitize(span.InnerText.Trim());
-                        if (!string.IsNullOrEmpty(name))
-                            adjNames.Add(name);
-                    }
-                }
+                var adjHtml = r[colMap["adjudicators"]]?["text"]?.ToString() ?? "";
+                var adjNames = ExtractAdjudicatorNames(adjHtml);
 
                 results.Add(new RoundResult
                 {
                     RoundTitle = roundTitle,
                     Adjudicator = string.Join(", ", adjNames),
-                    OG = new TeamStanding(
-                        r[colMap["OG"]]?["text"]?.ToString() ?? "",
-                        r[colMap["OG"]]?["sort"]?.ToObject<int?>() ?? -1
-                    ),
-                    OO = new TeamStanding(
-                        r[colMap["OO"]]?["text"]?.ToString() ?? "",
-                        r[colMap["OO"]]?["sort"]?.ToObject<int?>() ?? -1
-                    ),
-                    CG = new TeamStanding(
-                        r[colMap["CG"]]?["text"]?.ToString() ?? "",
-                        r[colMap["CG"]]?["sort"]?.ToObject<int?>() ?? -1
-                    ),
-                    CO = new TeamStanding(
-                        r[colMap["CO"]]?["text"]?.ToString() ?? "",
-                        r[colMap["CO"]]?["sort"]?.ToObject<int?>() ?? -1
-                    )
+                    OG = ParseStanding(r, colMap, "OG"),
+                    OO = ParseStanding(r, colMap, "OO"),
+                    CG = ParseStanding(r, colMap, "CG"),
+                    CO = ParseStanding(r, colMap, "CO")
                 });
             }
 
             return results;
+        }
+
+        private static List<string> ExtractAdjudicatorNames(string html)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var spans = doc.DocumentNode.SelectNodes("//span[@class='d-inline']");
+            var names = new List<string>();
+            if (spans != null)
+            {
+                foreach (var span in spans)
+                {
+                    var name = HtmlEntity.DeEntitize(span.InnerText.Trim());
+                    if (!string.IsNullOrEmpty(name))
+                        names.Add(name);
+                }
+            }
+            return names;
+        }
+
+        private static TeamStanding ParseStanding(JArray row, Dictionary<string, int> colMap, string key)
+        {
+            var col = row[colMap[key]];
+            return new TeamStanding(
+                col?["text"]?.ToString() ?? "",
+                col?["sort"]?.ToObject<int?>() ?? -1
+            );
         }
     }
 }

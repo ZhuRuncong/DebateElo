@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using DebateElo.Models;
+using DebateElo.Utilities;
+
 
 namespace DebateElo.Scrapers
 {
@@ -47,8 +49,8 @@ namespace DebateElo.Scrapers
 
                 var cell    = r[teamCol];
                 var popover = cell?["popover"];
-                var name = (string?)cell?["text"]?.ToString().Trim()
-                        ?? (string?)popover?["title"]?.ToString().Trim()
+                var name = (string?)cell?["text"]?.ToString()
+                        ?? (string?)popover?["title"]?.ToString()
                         ?? "Unknown";
 
                 if (!seen.Add(name)) continue;
@@ -56,15 +58,20 @@ namespace DebateElo.Scrapers
                 var speakers = new List<string>();
                 var content  = popover?["content"] as JArray;
                 if (content != null)
+                {
                     foreach (var entry in content)
                     {
                         var text = (string?)entry?["text"];
                         if (!string.IsNullOrEmpty(text) && text.Contains(','))
                         {
-                            speakers.AddRange(text.Split(',', StringSplitOptions.TrimEntries));
+                            speakers.AddRange(
+                                text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(NameNormalizer.Normalize)
+                            );
                             break;
                         }
                     }
+                }
 
                 teams.Add(new Team(tournamentName, name, speakers));
             }
